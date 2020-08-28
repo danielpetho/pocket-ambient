@@ -11,9 +11,9 @@ const Wrapper = styled.div`
 
 const Panel = () => {
     return (
-        <div>
+        <Wrapper>
             
-        </div>
+        </Wrapper>
     )
 };
 

@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "name": "generative-fm",
-=======
-  "name": "generativefm",
->>>>>>> e264d09... Initialize project using Create React App
   "version": "0.1.0",
   "private": true,
   "dependencies": {
