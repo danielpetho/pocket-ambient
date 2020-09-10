@@ -1,11 +1,12 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import styled from 'styled-components';
 import Channel from './Channel'
+import { AudioContext } from "../contexts/AudioContext";
+
 
 const Wrapper = styled.div`
     margin: 5% calc((100% - 300px) / 2) 5% calc((100% - 300px) / 2);
     display: flex;
-    /*justify-content: center;*/
     flex-direction: column;
     width: 300px;
     height: 500px;
@@ -21,10 +22,9 @@ const InnerPanel = styled.div`
     display: flex;
     justify-content: center;
     flex-direction: row;   
-    /*background-color: green;*/
 `
 
-const PlayPanel = styled.div`
+const ControlPanel = styled.div`
     margin: 0 3rem 1rem 3rem;   
     height: 20%;
     display: flex;
@@ -35,21 +35,25 @@ const PlayPanel = styled.div`
     & i {
         cursor: pointer;
     }
-    /*background-color: blue;*/
 `
 
 const Panel = () => {
+    const {isPlaying, togglePlay} = useContext(AudioContext);
     return (
         <Wrapper>
             <InnerPanel>
-                <Channel/>
-                <Channel/>
-                <Channel/>
-                <Channel/>                
+                <Channel index={1}/>
+                <Channel index={2}/>
+                <Channel index={3}/>
+                <Channel index={4}/>                
             </InnerPanel>
-            <PlayPanel>
-                <i class='material-icons md-light md-48'>play_circle_filled</i>
-            </PlayPanel>
+            {isPlaying ? 
+            <ControlPanel>
+                <i className='material-icons md-light md-48' onClick={togglePlay}>pause_circle_filled</i>
+            </ControlPanel> :
+            <ControlPanel>
+                <i className='material-icons md-light md-48' onClick={togglePlay}>play_circle_filled</i>
+            </ControlPanel>}
         </Wrapper>
     )
 };

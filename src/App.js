@@ -1,9 +1,12 @@
-import React from 'react';
-import Panel from './components/Panel';
+import React from "react";
+import Panel from "./components/Panel";
+import AudioContextProvider from "./contexts/AudioContext";
 
 function App() {
   return (
-    <Panel></Panel>
+    <AudioContextProvider>
+      <Panel />
+    </AudioContextProvider>
   );
 }
 
