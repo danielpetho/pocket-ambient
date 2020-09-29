@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import Channel from './Channel'
 import { AudioContext } from "../contexts/AudioContext";
 
-
 const Wrapper = styled.div`
     margin: 5% calc((100% - 300px) / 2) 5% calc((100% - 300px) / 2);
     display: flex;
@@ -14,6 +13,7 @@ const Wrapper = styled.div`
     background: linear-gradient(0deg, rgba(5,5,5,1) -17%, rgba(22,6,48,1) 100%);
     border-radius: 30px;
     box-shadow: 5px 10px 50px 5px rgba(50, 50, 50, 1); 
+    z-index: 1;
 `
 
 const InnerPanel = styled.div`
@@ -40,7 +40,7 @@ const ControlPanel = styled.div`
 const Panel = () => {
     const {isPlaying, togglePlay} = useContext(AudioContext);
     return (
-        <Wrapper>
+        <Wrapper>          
             <InnerPanel>
                 <Channel index={1}/>
                 <Channel index={2}/>
