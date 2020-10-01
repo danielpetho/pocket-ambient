@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 import MySlider from "./Slider";
-import { AudioContext } from "../contexts/AudioContext";
+import { UiContext } from "../contexts/UiContext";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -40,7 +40,7 @@ const ChannelName = styled.p`
 `;
 
 const Channel = (props) => {
-  const {channel_1, channel_2, channel_3, channel_4, toggleActiveBtn, onSliderChange} = useContext(AudioContext);
+  const {channel_1, channel_2, channel_3, channel_4, toggleActiveBtn, onSliderChange} = useContext(UiContext);
   let channelState;
   switch (props.index) {
     case 1:

@@ -1,8 +1,8 @@
 import React, { createContext, Component } from "react";
 
-export const AudioContext = createContext();
+export const UiContext = createContext();
 
-class AudioContextProvider extends Component {
+class UiContextProvider extends Component {
   state = {
     channel_1: {
       activeBtnIndex: 1,
@@ -85,11 +85,11 @@ class AudioContextProvider extends Component {
 
   render() {
     return (
-      <AudioContext.Provider value={{ ...this.state, togglePlay: this.togglePlay, toggleActiveBtn: this.toggleActiveBtn }}>
+      <UiContext.Provider value={{ ...this.state, togglePlay: this.togglePlay, toggleActiveBtn: this.toggleActiveBtn }}>
         {this.props.children}
-      </AudioContext.Provider>
+      </UiContext.Provider>
     );
   }
 }
 
-export default AudioContextProvider;
+export default UiContextProvider;
