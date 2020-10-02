@@ -42,12 +42,8 @@ const ControlPanel = styled.div`
   }
 `;
 
-const initAudio = () => {
-
-};
-
 const Panel = () => {
-  const { soundFile } = useStorage();
+  const { bufferArray } = useStorage();
   const { isPlaying, togglePlay } = useContext(UiContext);
 
   return (

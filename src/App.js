@@ -4,7 +4,6 @@ import UiContextProvider from "./contexts/UiContext";
 import Particles from "react-tsparticles";
 import particle_options from "../src/assets/particle_options"
 
-
 const App = () => {
   return (
     <div style={{display: "grid"}}>
