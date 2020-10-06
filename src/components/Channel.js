@@ -40,26 +40,9 @@ const ChannelName = styled.p`
 `;
 
 const Channel = (props) => {
-  const {channel_1, channel_2, channel_3, channel_4, toggleActiveBtn, onSliderChange} = useContext(UiContext);
-  let channelState;
-  switch (props.index) {
-    case 1:
-      channelState = channel_1;
-      break;
-    case 2:
-      channelState = channel_2;
-      break;
-    case 3:
-      channelState = channel_3;
-      break;
-    case 4:
-      channelState = channel_4;
-      break;
-    default:
-      channelState = channel_1;
-      break;
-  }
-
+  const {channels, toggleActiveBtn, onSliderChange} = useContext(UiContext);
+  let channelState = channels[props.index];
+  
   return (
     <Wrapper>
       <ChannelName>{channelState.channelName}</ChannelName>

@@ -43,7 +43,6 @@ const ControlPanel = styled.div`
 `;
 
 const Panel = () => {
-  const { bufferArray } = useStorage();
   const { isPlaying, togglePlay } = useContext(UiContext);
 
   return (
