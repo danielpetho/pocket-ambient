@@ -2,7 +2,8 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import Channel from "./Channel";
 import { UiContext } from "../contexts/UiContext";
-import useStorage from "../hooks/useStorage";
+import { MyAudioContext } from "../contexts/MyAudioContext";
+import useSetupAudio from "../hooks/useSetupAudio";
 
 const Wrapper = styled.div`
   margin: 5% calc((100% - 300px) / 2) 5% calc((100% - 300px) / 2);
@@ -44,6 +45,14 @@ const ControlPanel = styled.div`
 
 const Panel = () => {
   const { isPlaying, togglePlay } = useContext(UiContext);
+  const { audioContext, state, mountChannelBuffers, play, stop, isSetup, playedOnce } = useContext(MyAudioContext);
+  const { channelBuffers } = useSetupAudio();
+
+
+  console.log(channelBuffers);
+  console.log(isSetup);
+  
+  if (channelBuffers.length === 5 && !isSetup) mountChannelBuffers(1, channelBuffers)
 
   return (
     <Wrapper>

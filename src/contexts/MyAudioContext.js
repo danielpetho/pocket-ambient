@@ -1,52 +1,69 @@
 import React, { createContext, Component } from "react";
 
 export const MyAudioContext = createContext();
-const audioContext = new AudioContext();
+
 
 class MyAudioContextProvider extends Component {
   state = {
-    audioContext: audioContext,
+    audioContext: '',
     channelBuffers: {
-      1: [],
-      2: [],
-      3: [],
-      4: [],
+      1: {
+        buffer: []
+      },
+      2: {
+        buffer: []
+      },
+      3: {
+        buffer: []
+      },
+      4: {
+        buffer: []
+      },
     },
+    isSetup: false,
+    playedOnce: false,
   };
 
   mountChannelBuffers = (channelId, buffers) => {
-    let state = this.state;
+    let channelBuffers = this.state.channelBuffers;
+    
+    channelBuffers[channelId].buffer = buffers;
 
-    state.channelBuffers[channelId] = buffers;
-    this.setState({
-      state,
-    });
+    this.setState({isSetup : true})
+
+    console.log(this.state);
   };
 
   play = () => {
     let state = this.state;
 
-    state.channels.forEach((channel) => {
-      let bufferArray = channel;
-      bufferArray.forEach((node, index) => {
-        console.log("starting " + index);
-        node.loop = true;
-        node.start();
+    if (state.isSetup) {
+      state.channelBuffers.forEach((channel) => {
+        let bufferArray = channel;
+        bufferArray.forEach((node, index) => {
+          console.log("starting " + index);
+          node.loop = true;
+          node.start();
+        });
       });
-    });
+
+      state.playedOnce = true;
+    }
   };
 
   stop = () => {
     let state = this.state;
 
-    state.channels.forEach((channel) => {
-      let bufferArray = channel;
-      bufferArray.forEach((node, index) => {
-        console.log("stopping " + index);
-        node.loop = false;
-        node.stop();
+    if (state.playedOnce) {
+      state.channelBuffers.forEach((channel) => {
+        let bufferArray = channel;
+        bufferArray.forEach((node, index) => {
+          console.log("stopping " + index);
+          node.loop = false;
+          node.stop();
+        });
       });
-    });
+    }
   };
 
   render() {

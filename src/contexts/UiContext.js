@@ -9,7 +9,7 @@ class UiContextProvider extends Component {
         activeBtnIndex: 1,
         channelName: "BACKGROUND",
         volume: 75,
-      }, 
+      },
 
       2: {
         activeBtnIndex: 1,
@@ -29,7 +29,7 @@ class UiContextProvider extends Component {
         volume: 75,
       },
       isPlaying: false,
-    }
+    },
   };
 
   togglePlay = () => {
@@ -53,7 +53,12 @@ class UiContextProvider extends Component {
 
   render() {
     return (
-      <UiContext.Provider value={{ ...this.state, togglePlay: this.togglePlay, toggleActiveBtn: this.toggleActiveBtn }}>
+      <UiContext.Provider
+        value={{
+          ...this.state,
+          togglePlay: this.togglePlay,
+          toggleActiveBtn: this.toggleActiveBtn,
+        }}>
         {this.props.children}
       </UiContext.Provider>
     );
