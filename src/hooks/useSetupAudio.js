@@ -16,9 +16,14 @@ const useSetupAudio = () => {
       bufferArray.forEach((buffer, index) => {
         let sourceNode = ac.createBufferSource();
         sourceNode.buffer = buffer.buffer;
-        sourceNode.connect(ac.destination);
-        sourceNodes.push(sourceNode);
+        let gainNode = ac.createGain();
+        sourceNode.connect(gainNode); 
+        gainNode.connect(ac.destination);
         sourceNode.loop = false;
+
+        let node =  {sourceNode, gainNode}; 
+        sourceNodes.push(node);
+        
       });   
     }
 

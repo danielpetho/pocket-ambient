@@ -11,6 +11,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "react-spinners-kit": "^1.9.1",
     "react-tsparticles": "^1.17.12",
     "styled-components": "^5.1.1"
   },

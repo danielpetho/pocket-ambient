@@ -28,12 +28,13 @@ const reducer = (state, action) => {
       state.channels.forEach((channel) => {
         channel.buffers.forEach((node, index) => {
           console.log("starting " + index);
-          node.loop = true;
+          console.log(node);
+          node.sourceNode.loop = true;
           if (!state.playedOnce) {
-            node.volume = 100;
-            node.start();
+            node.gainNode.gain.setValueAtTime(1, state.audioContext.currentTime);
+            node.sourceNode.start(0);
           } else {
-            node.volume = 100;
+            node.gainNode.gain.setValueAtTime(1, state.audioContext.currentTime);
           }
         });
       });
@@ -46,8 +47,8 @@ const reducer = (state, action) => {
       state.channels.forEach((channel) => {
         channel.buffers.forEach((node, index) => {
           console.log("stopping " + index);
-          node.loop = false;
-          node.volume = 0;
+          //node.sourceNode.loop = false;
+          node.gainNode.gain.setValueAtTime(0, state.audioContext.currentTime);
         });
       });
       return {
@@ -55,6 +56,9 @@ const reducer = (state, action) => {
         isPlaying: false,
       };
     case "SET_VOLUME":
+      state.channels[action.idx].buffers.forEach((node) => {
+        node.gainNode.gain.setValueAtTime(action.payload / 100, state.audioContext.currentTime);
+      })
       return {
         ...state,
         channels: state.channels.map((channel, i) =>

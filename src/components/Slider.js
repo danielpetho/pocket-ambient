@@ -15,7 +15,7 @@ const SliderWrapper = styled.div`
 `;
 
 const MySlider = (props) => {
-  const [state, dispatch] = useContext(MyAudioContext);
+  const [ state, dispatch ] = useContext(MyAudioContext);
   const { index } = props;
 
   const onSliderChange = value => {

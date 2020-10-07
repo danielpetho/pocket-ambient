@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import Channel from "./Channel";
 import { MyAudioContext } from "../contexts/MyAudioContext";
+import { WaveSpinner } from "react-spinners-kit";
 import useSetupAudio from "../hooks/useSetupAudio";
 
 const Wrapper = styled.div`
@@ -20,6 +21,18 @@ const Wrapper = styled.div`
   box-shadow: 5px 10px 50px 5px rgba(50, 50, 50, 1);
   z-index: 10;
 `;
+
+const LoadWrapper = styled.div`
+width: 300px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  color: #efefef;
+  font-size: 0.5rem;
+  text-transform: uppercase;
+`
 
 const InnerPanel = styled.div`
   height: 80%;
@@ -75,11 +88,14 @@ const Panel = () => {
     });
   };
 
-  console.log(state);
+  //console.log(state);
   return (
     <Wrapper>
       {!state.isSetup ? (
-        <p>Loading...</p>
+        <LoadWrapper>
+          <WaveSpinner size={30} color={"#fff"}></WaveSpinner>
+          <p>Downloading samples...</p>
+        </LoadWrapper>
       ) : (
         <>
           <InnerPanel>
