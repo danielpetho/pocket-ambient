@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 import MySlider from "./Slider";
-import { UiContext } from "../contexts/UiContext";
+import { MyAudioContext } from "../contexts/MyAudioContext"
 
 const Wrapper = styled.div`
   height: 100%;
@@ -40,17 +40,25 @@ const ChannelName = styled.p`
 `;
 
 const Channel = (props) => {
-  const {channels, toggleActiveBtn, onSliderChange} = useContext(UiContext);
-  let channelState = channels[props.index];
+  const [state, dispatch] = useContext(MyAudioContext);
+
+  let channelState = state.channels[props.index];
+  const chooseVariation = (id) =>{
+    dispatch({
+      type: "SET_VAR",
+      channelIdx: props.index,
+      varIdx: id
+    })
+  }
   
   return (
     <Wrapper>
       <ChannelName>{channelState.channelName}</ChannelName>
-      {channelState.activeBtnIndex === 1 ? <Button active/> : <Button onClick={() => toggleActiveBtn(props.index, 1)}/>}
-      {channelState.activeBtnIndex === 2 ? <Button active/> : <Button onClick={() => toggleActiveBtn(props.index, 2)}/>}
-      {channelState.activeBtnIndex === 3 ? <Button active/> : <Button onClick={() => toggleActiveBtn(props.index, 3)}/>}
-      {channelState.activeBtnIndex === 4 ? <Button active/> : <Button onClick={() => toggleActiveBtn(props.index, 4)}/>}
-      <MySlider />
+      {channelState.activeVar === 0 ? <Button active/> : <Button onClick={() => chooseVariation(0)}/>}
+      {channelState.activeVar === 1 ? <Button active/> : <Button onClick={() => chooseVariation(1)}/>}
+      {channelState.activeVar === 2 ? <Button active/> : <Button onClick={() => chooseVariation(2)}/>}
+      {channelState.activeVar === 3 ? <Button active/> : <Button onClick={() => chooseVariation(3)}/>}
+      <MySlider index={props.index}/>
     </Wrapper>
   );
 };

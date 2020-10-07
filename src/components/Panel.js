@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
 import Channel from "./Channel";
-import { UiContext } from "../contexts/UiContext";
 import { MyAudioContext } from "../contexts/MyAudioContext";
 import useSetupAudio from "../hooks/useSetupAudio";
 
@@ -19,7 +18,7 @@ const Wrapper = styled.div`
   );
   border-radius: 30px;
   box-shadow: 5px 10px 50px 5px rgba(50, 50, 50, 1);
-  z-index: 1;
+  z-index: 10;
 `;
 
 const InnerPanel = styled.div`
@@ -44,36 +43,69 @@ const ControlPanel = styled.div`
 `;
 
 const Panel = () => {
-  const { isPlaying, togglePlay } = useContext(UiContext);
-  const { audioContext, state, mountChannelBuffers, play, stop, isSetup, playedOnce } = useContext(MyAudioContext);
-  const { channelBuffers } = useSetupAudio();
+  const [state, dispatch] = useContext(MyAudioContext);
+  const { channelBuffers, audioContext } = useSetupAudio();
 
+  // mount web auido api
+  if (
+    !state.isSetup &&
+    channelBuffers[0] &&
+    channelBuffers[0].buffers.length == 5 &&
+    audioContext !== null
+  ) {
+    dispatch({
+      type: "MOUNT_AC",
+      payload: audioContext,
+    });
+    dispatch({
+      type: "MOUNT_BUFFERS",
+      payload: channelBuffers,
+    });
+  }
 
-  console.log(channelBuffers);
-  console.log(isSetup);
-  
-  if (channelBuffers.length === 5 && !isSetup) mountChannelBuffers(1, channelBuffers)
+  const play = () => {
+    dispatch({
+      type: "PLAY",
+    });
+  };
 
+  const stop = () => {
+    dispatch({
+      type: "STOP",
+    });
+  };
+
+  console.log(state);
   return (
     <Wrapper>
-      <InnerPanel>
-        <Channel index={1} />
-        <Channel index={2} />
-        <Channel index={3} />
-        <Channel index={4} />
-      </InnerPanel>
-      {isPlaying ? (
-        <ControlPanel>
-          <i className="material-icons md-light md-48" onClick={togglePlay}>
-            pause_circle_filled
-          </i>
-        </ControlPanel>
+      {!state.isSetup ? (
+        <p>Loading...</p>
       ) : (
-        <ControlPanel>
-          <i className="material-icons md-light md-48" onClick={togglePlay}>
-            play_circle_filled
-          </i>
-        </ControlPanel>
+        <>
+          <InnerPanel>
+            <Channel index={0} />
+            <Channel index={1} />
+            <Channel index={2} />
+            <Channel index={3} />
+          </InnerPanel>
+          {!state.isPlaying ? (
+            <ControlPanel>
+              <i
+                className="material-icons md-light md-48"
+                onClick={() => play()}>
+                play_circle_filled
+              </i>
+            </ControlPanel>
+          ) : (
+            <ControlPanel>
+              <i
+                className="material-icons md-light md-48"
+                onClick={() => stop()}>
+                pause_circle_filled
+              </i>
+            </ControlPanel>
+          )}
+        </>
       )}
     </Wrapper>
   );

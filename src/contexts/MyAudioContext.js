@@ -1,84 +1,86 @@
-import React, { createContext, Component } from "react";
+import React, { createContext, useReducer } from "react";
 
 export const MyAudioContext = createContext();
 
+const initialState = {
+  audioContext: "",
+  channels: [],
+  isSetup: false,
+  playedOnce: false,
+  isPlaying: false,
+};
 
-class MyAudioContextProvider extends Component {
-  state = {
-    audioContext: '',
-    channelBuffers: {
-      1: {
-        buffer: []
-      },
-      2: {
-        buffer: []
-      },
-      3: {
-        buffer: []
-      },
-      4: {
-        buffer: []
-      },
-    },
-    isSetup: false,
-    playedOnce: false,
-  };
-
-  mountChannelBuffers = (channelId, buffers) => {
-    let channelBuffers = this.state.channelBuffers;
-    
-    channelBuffers[channelId].buffer = buffers;
-
-    this.setState({isSetup : true})
-
-    console.log(this.state);
-  };
-
-  play = () => {
-    let state = this.state;
-
-    if (state.isSetup) {
-      state.channelBuffers.forEach((channel) => {
-        let bufferArray = channel;
-        bufferArray.forEach((node, index) => {
+const reducer = (state, action) => {
+  //console.log(state, action);
+  switch (action.type) {
+    case "MOUNT_AC":
+      return {
+        ...state,
+        audioContext: action.payload,
+      };
+    case "MOUNT_BUFFERS":
+      return {
+        ...state,
+        channels: action.payload,
+        isSetup: true,
+      };
+    case "PLAY":
+      state.channels.forEach((channel) => {
+        channel.buffers.forEach((node, index) => {
           console.log("starting " + index);
           node.loop = true;
-          node.start();
+          if (!state.playedOnce) {
+            node.volume = 100;
+            node.start();
+          } else {
+            node.volume = 100;
+          }
         });
       });
-
-      state.playedOnce = true;
-    }
-  };
-
-  stop = () => {
-    let state = this.state;
-
-    if (state.playedOnce) {
-      state.channelBuffers.forEach((channel) => {
-        let bufferArray = channel;
-        bufferArray.forEach((node, index) => {
+      return {
+        ...state,
+        playedOnce: true,
+        isPlaying: true,
+      };
+    case "STOP":
+      state.channels.forEach((channel) => {
+        channel.buffers.forEach((node, index) => {
           console.log("stopping " + index);
           node.loop = false;
-          node.stop();
+          node.volume = 0;
         });
       });
-    }
-  };
-
-  render() {
-    return (
-      <MyAudioContext.Provider
-        value={{
-          ...this.state,
-          mountChannelBuffers: this.mountChannelBuffers,
-          play: this.play,
-          stop: this.stop,
-        }}>
-        {this.props.children}
-      </MyAudioContext.Provider>
-    );
+      return {
+        ...state,
+        isPlaying: false,
+      };
+    case "SET_VOLUME":
+      return {
+        ...state,
+        channels: state.channels.map((channel, i) =>
+          i === action.idx ? { ...channel, volume: action.payload } : channel
+        ),
+      };
+    case "SET_VAR":
+      return {
+        ...state,
+        channels: state.channels.map((channel, i) => 
+          i === action.channelIdx
+            ? { ...channel, activeVar: action.varIdx }
+            : channel
+        ),
+      };
+    default:
+      console.log(action);
   }
-}
+};
 
-export default MyAudioContextProvider;
+export const MyAudioContextProvider = (props) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <MyAudioContext.Provider value={[state, dispatch]}>
+      {props.children}
+    </MyAudioContext.Provider>
+  );
+};

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import MyAudioContext from '../contexts/MyAudioContext'
 import useStorage from '../hooks/useStorage';
 
 const ac = new AudioContext();
@@ -12,7 +11,8 @@ const useSetupAudio = () => {
   let sourceNodes = [];
 
   useEffect(() => {
-    if (bufferArray) {   
+    //console.log("using useSetupAudio hook")
+    if (bufferArray && bufferArray.length == 5) {   
       bufferArray.forEach((buffer, index) => {
         let sourceNode = ac.createBufferSource();
         sourceNode.buffer = buffer.buffer;
@@ -22,7 +22,38 @@ const useSetupAudio = () => {
       });   
     }
 
-    setChannelBuffers(sourceNodes);
+    let buffers = [
+      {
+        id: 0,
+        buffers: sourceNodes,
+        volume: 75,
+        activeVar: 1,
+        channelName: "BACKGROUND",
+      },
+      {
+        id: 1,
+        buffers: [],
+        volume: 75,
+        activeVar: 0,
+        channelName: "PAD"
+      },
+      {
+        id: 2,
+        buffers: [],
+        volume: 75,
+        activeVar: 2,
+        channelName: "LEAD",
+      },
+      {
+        id: 3,
+        buffers: [],
+        volume: 75,
+        activeVar: 3,
+        channelName: "EFFECTS",
+      },
+    ]
+
+    setChannelBuffers(buffers);
     setAudioContext(ac);
   }, [bufferArray]);
 
