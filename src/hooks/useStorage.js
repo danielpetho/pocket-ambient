@@ -19,18 +19,18 @@ const useStorage = () => {
     const lib = [];
 
     //collect the decoded samples into an array
-    SAMPLE_LIBRARY.forEach(ch => {
+    SAMPLE_LIBRARY.forEach((ch, i) => {
       const channel = {variations: [], channelName: ch.channelName};
       ch.variations.forEach(variation => {
         
-        const vari = {variation: variation, rules: {}, samples: []};
+        const vari = {variation: variation.variation, rules: {}, samples: [], name: variation.name};
         const sampleArray = [];
 
         variation.samples.forEach(sample => {
-          let sampleName = sample.name + ".mp3";
+          let sampleName = sample + ".mp3";
           
           storageRef
-            .child("samples/" + ch + "/" + variation.variation + "/" + sampleName)
+            .child("samples/channel" + (i + 1) + "/" + variation.variation + "/" + sampleName)
             .getDownloadURL()
             .then((url) => {
               const xhr = new XMLHttpRequest();

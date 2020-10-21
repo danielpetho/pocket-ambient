@@ -1,66 +1,76 @@
 import React, { useEffect, useState, useContext } from "react";
-import useStorage from '../hooks/useStorage';
+import useStorage from "../hooks/useStorage";
 
 const ac = new AudioContext();
 
+const setupChannel = (channel) => {
+  let ch = [];
+  channel.variations.forEach((vari, i) => {
+
+    let variation = {i, nodes: []};
+    let sourceNodes = [];
+    vari.samples.forEach((sample) => {
+      let sourceNode = ac.createBufferSource();
+      sourceNode.buffer = sample.buffer;
+      let gainNode = ac.createGain();
+      sourceNode.connect(gainNode);
+      gainNode.connect(ac.destination);
+      sourceNode.loop = false;
+
+      let node = { sourceNode, gainNode };
+      sourceNodes.push(node);
+    });
+    variation.nodes = sourceNodes;
+    ch.push(variation);
+  });
+  return ch;
+}
+
+
 const useSetupAudio = () => {
-  const { bufferArray } = useStorage();
-  const [ channelBuffers, setChannelBuffers ] = useState([]);
-  const [ audioContext, setAudioContext ] = useState(null);
+  const { sampleLibrary } = useStorage();
+  const [channelBuffers, setChannelBuffers] = useState([]);
+  const [audioContext, setAudioContext] = useState(null);
 
-  let sourceNodes = [];
-
+  //console.log(sampleLibrary);
   useEffect(() => {
-    //console.log("using useSetupAudio hook")
-    if (bufferArray && bufferArray.length == 5) {   
-      bufferArray.forEach((buffer, index) => {
-        let sourceNode = ac.createBufferSource();
-        sourceNode.buffer = buffer.buffer;
-        let gainNode = ac.createGain();
-        sourceNode.connect(gainNode); 
-        gainNode.connect(ac.destination);
-        sourceNode.loop = false;
+    console.log("using useSetupAudio hook");
+    
+    if (sampleLibrary && sampleLibrary.length === 4) {
+      let channels = []
+      sampleLibrary.forEach((channel) => {
 
-        let node =  {sourceNode, gainNode}; 
-        sourceNodes.push(node);
-        
-      });   
+        let column = 0;
+        let chName = "";
+        switch(channel.channelName) {
+          case "BACKGROUND": 
+            column = 0;
+            chName = channel.channelName;
+            break;
+          case "PAD": 
+            column = 1;
+            chName = channel.channelName;
+          break;
+            case "LEAD": 
+            column = 2;
+            chName = channel.channelName;
+          break;
+            case "EFFECTS": 
+            column = 3;
+            chName = channel.channelName;
+            break;
+          default:
+            console.error("wrong channelName");
+            break;
+        }
+
+        let variation = setupChannel(channel);
+        channels.push({variation, column, chName, activeVar: 0, volume: 75});
+      });
+      console.log(channels);
+      setAudioContext(ac);
     }
-
-    let buffers = [
-      {
-        id: 0,
-        buffers: sourceNodes,
-        volume: 75,
-        activeVar: 1,
-        channelName: "BACKGROUND",
-      },
-      {
-        id: 1,
-        buffers: [],
-        volume: 75,
-        activeVar: 0,
-        channelName: "PAD"
-      },
-      {
-        id: 2,
-        buffers: [],
-        volume: 75,
-        activeVar: 2,
-        channelName: "LEAD",
-      },
-      {
-        id: 3,
-        buffers: [],
-        volume: 75,
-        activeVar: 3,
-        channelName: "EFFECTS",
-      },
-    ]
-
-    setChannelBuffers(buffers);
-    setAudioContext(ac);
-  }, [bufferArray]);
+  }, [sampleLibrary]);
 
   return { channelBuffers, audioContext };
 };
