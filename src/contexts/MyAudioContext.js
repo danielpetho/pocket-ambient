@@ -2,6 +2,7 @@ import React, { createContext, useReducer } from "react";
 
 export const MyAudioContext = createContext();
 
+
 const initialState = {
   audioContext: "",
   channels: [],
@@ -22,17 +23,7 @@ const reducer = (state, action) => {
       };
     case "PLAY":
       state.channels.forEach((channel) => {
-        channel.buffers.forEach((node, index) => {
-          console.log("starting " + index);
-          console.log(node);
-          node.sourceNode.loop = true;
-          if (!state.playedOnce) {
-            node.gainNode.gain.setValueAtTime(1, state.audioContext.currentTime);
-            node.sourceNode.start(0);
-          } else {
-            node.gainNode.gain.setValueAtTime(1, state.audioContext.currentTime);
-          }
-        });
+        channel.variation[channel.activeVar].variationGain.gain.setValueAtTime(1, state.audioContext.currentTime);
       });
       return {
         ...state,
@@ -41,10 +32,8 @@ const reducer = (state, action) => {
       };
     case "STOP":
       state.channels.forEach((channel) => {
-        channel.buffers.forEach((node, index) => {
-          console.log("stopping " + index);
-          //node.sourceNode.loop = false;
-          node.gainNode.gain.setValueAtTime(0, state.audioContext.currentTime);
+        channel.variation.forEach((v) => {
+          v.variationGain.gain.setValueAtTime(0, state.audioContext.currentTime);
         });
       });
       return {

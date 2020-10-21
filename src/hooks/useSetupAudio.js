@@ -5,21 +5,35 @@ const ac = new AudioContext();
 
 const setupChannel = (channel) => {
   let ch = [];
+  //let channelMerger = ac.createChannelMerger();
   channel.variations.forEach((vari, i) => {
 
-    let variation = {i, nodes: []};
+    let variation = {i, nodes: [], merger: {}, variationGain: {}};
+    let varChannelMerger = ac.createChannelMerger();
+    const varGainNode = ac.createGain();
+    varGainNode.gain.setValueAtTime(0, ac.currentTime);
+
     let sourceNodes = [];
     vari.samples.forEach((sample) => {
       let sourceNode = ac.createBufferSource();
       sourceNode.buffer = sample.buffer;
+
       let gainNode = ac.createGain();
       sourceNode.connect(gainNode);
-      gainNode.connect(ac.destination);
-      sourceNode.loop = false;
+
+      gainNode.connect(varChannelMerger);
+      sourceNode.loop = true;
 
       let node = { sourceNode, gainNode };
+      node.sourceNode.start(0);
+      node.gainNode.gain.setValueAtTime(0.75, ac.currentTime);
+
       sourceNodes.push(node);
     });
+
+    varChannelMerger.connect(varGainNode);
+    variation.variationGain = varGainNode;
+    variation.merger = varChannelMerger;
     variation.nodes = sourceNodes;
     ch.push(variation);
   });
@@ -39,7 +53,9 @@ const useSetupAudio = () => {
     if (sampleLibrary && sampleLibrary.length === 4) {
       let channels = []
       sampleLibrary.forEach((channel) => {
-
+        
+        const channelMerger = ac.createChannelMerger();
+        const channelGain = ac.createGain();
         let column = 0;
         let chName = "";
         switch(channel.channelName) {
@@ -65,7 +81,9 @@ const useSetupAudio = () => {
         }
 
         let variation = setupChannel(channel);
-        channels.push({variation, column, chName, activeVar: 0, volume: 75});
+        variation.variationGain.connect(channelMerger);
+        channelMerger.connect(channelGain);
+        channels.push({variation, column, chName, activeVar:  Math.floor((Math.random() * 4) + 1), volume: 75, channelGain: channelGain});
       });
       channels.sort((a, b) => {
         return a.column - b.column;
