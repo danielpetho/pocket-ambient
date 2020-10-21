@@ -16,12 +16,8 @@ const reducer = (state, action) => {
     case "MOUNT_AC":
       return {
         ...state,
-        audioContext: action.payload,
-      };
-    case "MOUNT_BUFFERS":
-      return {
-        ...state,
-        channels: action.payload,
+        audioContext: action.ac,
+        channels: action.buffers,
         isSetup: true,
       };
     case "PLAY":

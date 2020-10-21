@@ -67,7 +67,10 @@ const useSetupAudio = () => {
         let variation = setupChannel(channel);
         channels.push({variation, column, chName, activeVar: 0, volume: 75});
       });
-      console.log(channels);
+      channels.sort((a, b) => {
+        return a.column - b.column;
+      })
+      setChannelBuffers(channels);
       setAudioContext(ac);
     }
   }, [sampleLibrary]);

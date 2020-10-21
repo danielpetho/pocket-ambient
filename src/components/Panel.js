@@ -62,17 +62,14 @@ const Panel = () => {
   // mount web auido api
   if (
     !state.isSetup &&
-    channelBuffers[0] &&
-    channelBuffers[0].buffers.length == 5 &&
+    channelBuffers &&
+    channelBuffers.length === 4 &&
     audioContext !== null
   ) {
     dispatch({
       type: "MOUNT_AC",
-      payload: audioContext,
-    });
-    dispatch({
-      type: "MOUNT_BUFFERS",
-      payload: channelBuffers,
+      ac: audioContext,
+      buffers: channelBuffers
     });
   }
 
@@ -88,7 +85,7 @@ const Panel = () => {
     });
   };
 
-  //console.log(state);
+  console.log(state);
   return (
     <Wrapper>
       {!state.isSetup ? (
