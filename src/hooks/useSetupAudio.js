@@ -8,8 +8,8 @@ const setupChannel = (channel) => {
   //let channelMerger = ac.createChannelMerger();
   channel.variations.forEach((vari, i) => {
 
-    let variation = {i, nodes: [], merger: {}, variationGain: {}};
-    let varChannelMerger = ac.createChannelMerger();
+    const variation = {i, nodes: [], merger: {}, variationGain: {}};
+    const varChannelMerger = ac.createChannelMerger();
     const varGainNode = ac.createGain();
     varGainNode.gain.setValueAtTime(0, ac.currentTime);
 
@@ -26,7 +26,7 @@ const setupChannel = (channel) => {
 
       let node = { sourceNode, gainNode };
       node.sourceNode.start(0);
-      node.gainNode.gain.setValueAtTime(0.75, ac.currentTime);
+      node.gainNode.gain.setValueAtTime(1, ac.currentTime);
 
       sourceNodes.push(node);
     });
@@ -37,6 +37,7 @@ const setupChannel = (channel) => {
     variation.nodes = sourceNodes;
     ch.push(variation);
   });
+  
   return ch;
 }
 
@@ -46,9 +47,7 @@ const useSetupAudio = () => {
   const [channelBuffers, setChannelBuffers] = useState([]);
   const [audioContext, setAudioContext] = useState(null);
 
-  //console.log(sampleLibrary);
   useEffect(() => {
-    console.log("using useSetupAudio hook");
     
     if (sampleLibrary && sampleLibrary.length === 4) {
       let channels = []
@@ -56,6 +55,7 @@ const useSetupAudio = () => {
         
         const channelMerger = ac.createChannelMerger();
         const channelGain = ac.createGain();
+        channelGain.gain.setValueAtTime(0, ac.currentTime);
         let column = 0;
         let chName = "";
         switch(channel.channelName) {
@@ -81,9 +81,14 @@ const useSetupAudio = () => {
         }
 
         let variation = setupChannel(channel);
-        variation.variationGain.connect(channelMerger);
+        variation.forEach(v => {
+          v.variationGain.connect(channelMerger);
+        })
+        const activeVar = Math.floor((Math.random() * 4));
+        variation[activeVar].variationGain.gain.setValueAtTime(1, ac.currentTime);
         channelMerger.connect(channelGain);
-        channels.push({variation, column, chName, activeVar:  Math.floor((Math.random() * 4) + 1), volume: 75, channelGain: channelGain});
+        channelGain.connect(ac.destination);
+        channels.push({variation, column, chName, activeVar: activeVar, volume: 75, channelGain: channelGain});
       });
       channels.sort((a, b) => {
         return a.column - b.column;

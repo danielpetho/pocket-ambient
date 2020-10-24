@@ -2,6 +2,25 @@ import React, { createContext, useReducer } from "react";
 
 export const MyAudioContext = createContext();
 
+const fade = (state, channel, variation, nextVariation) => {
+  const step = 0.01;
+  let fOut = setInterval(() => {
+    const gain = channel.variation[variation].variationGain.gain.value
+    channel.variation[variation].variationGain.gain.setValueAtTime((gain - step), state.audioContext.currentTime);
+    if (channel.variation[variation].variationGain.gain.value < 0.01) {
+      clearInterval(fOut);
+    }
+  }, 30);
+  let fIn = setInterval(() => {
+    const gain = channel.variation[nextVariation].variationGain.gain.value
+    channel.variation[nextVariation].variationGain.gain.setValueAtTime((gain + step), state.audioContext.currentTime);
+    if (channel.variation[nextVariation].variationGain.gain.value > 0.99) {
+      clearInterval(fIn);
+    }
+  }, 30);
+  
+}
+
 
 const initialState = {
   audioContext: "",
@@ -12,7 +31,6 @@ const initialState = {
 };
 
 const reducer = (state, action) => {
-  //console.log(state, action);
   switch (action.type) {
     case "MOUNT_AC":
       return {
@@ -23,7 +41,7 @@ const reducer = (state, action) => {
       };
     case "PLAY":
       state.channels.forEach((channel) => {
-        channel.variation[channel.activeVar].variationGain.gain.setValueAtTime(1, state.audioContext.currentTime);
+        channel.channelGain.gain.setValueAtTime(channel.volume / 100, state.audioContext.currentTime);
       });
       return {
         ...state,
@@ -32,18 +50,14 @@ const reducer = (state, action) => {
       };
     case "STOP":
       state.channels.forEach((channel) => {
-        channel.variation.forEach((v) => {
-          v.variationGain.gain.setValueAtTime(0, state.audioContext.currentTime);
-        });
+        channel.channelGain.gain.setValueAtTime(0, state.audioContext.currentTime);
       });
       return {
         ...state,
         isPlaying: false,
       };
     case "SET_VOLUME":
-      state.channels[action.idx].buffers.forEach((node) => {
-        node.gainNode.gain.setValueAtTime(action.payload / 100, state.audioContext.currentTime);
-      })
+      state.channels[action.idx].channelGain.gain.setValueAtTime(action.payload / 100, state.audioContext.currentTime);
       return {
         ...state,
         channels: state.channels.map((channel, i) =>
@@ -51,6 +65,8 @@ const reducer = (state, action) => {
         ),
       };
     case "SET_VAR":
+      const activeVar = state.channels[action.channelIdx].activeVar;
+      fade(state, state.channels[action.channelIdx], activeVar, action.varIdx);
       return {
         ...state,
         channels: state.channels.map((channel, i) => 
@@ -60,7 +76,7 @@ const reducer = (state, action) => {
         ),
       };
     default:
-      console.log(action);
+      return;
   }
 };
 
