@@ -1,20 +1,21 @@
 import React, { useEffect, useState, useContext } from "react";
 import useStorage from "../hooks/useStorage";
+import { playSample } from '../audio/index';
 
 const ac = new AudioContext();
 
 const setupChannel = (channel) => {
   let ch = [];
-  //let channelMerger = ac.createChannelMerger();
   channel.variations.forEach((vari, i) => {
 
-    const variation = {i, nodes: [], merger: {}, variationGain: {}};
+    const variation = {i, nodes: [], merger: {}, variationGain: {}, name: vari.name};
     const varChannelMerger = ac.createChannelMerger();
     const varGainNode = ac.createGain();
     varGainNode.gain.setValueAtTime(0, ac.currentTime);
 
     let sourceNodes = [];
     vari.samples.forEach((sample) => {
+      let sampleName = sample.sampleName.substring(0, sample.sampleName.length - 4);
       let sourceNode = ac.createBufferSource();
       sourceNode.buffer = sample.buffer;
 
@@ -24,7 +25,7 @@ const setupChannel = (channel) => {
       gainNode.connect(varChannelMerger);
       sourceNode.loop = true;
 
-      let node = { sourceNode, gainNode };
+      let node = { sourceNode, gainNode, sampleName };
       node.sourceNode.start(0);
       node.gainNode.gain.setValueAtTime(1, ac.currentTime);
 
@@ -46,6 +47,8 @@ const useSetupAudio = () => {
   const { sampleLibrary } = useStorage();
   const [channelBuffers, setChannelBuffers] = useState([]);
   const [audioContext, setAudioContext] = useState(null);
+
+  console.log(sampleLibrary);
 
   useEffect(() => {
     

@@ -19,7 +19,6 @@ const MySlider = (props) => {
   const { index } = props;
 
   const onSliderChange = value => {
-    console.log(index, value);
     dispatch({
       type: "SET_VOLUME",
       idx: index,

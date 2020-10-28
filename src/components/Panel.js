@@ -4,6 +4,7 @@ import Channel from "./Channel";
 import { MyAudioContext } from "../contexts/MyAudioContext";
 import { WaveSpinner } from "react-spinners-kit";
 import useSetupAudio from "../hooks/useSetupAudio";
+import { motion } from "framer-motion";
 
 const Wrapper = styled.div`
   margin: 5% calc((100% - 300px) / 2) 5% calc((100% - 300px) / 2);
@@ -23,7 +24,7 @@ const Wrapper = styled.div`
 `;
 
 const LoadWrapper = styled.div`
-width: 300px;
+  width: 300px;
   height: 500px;
   display: flex;
   align-items: center;
@@ -32,9 +33,9 @@ width: 300px;
   color: #efefef;
   font-size: 0.5rem;
   text-transform: uppercase;
-`
+`;
 
-const InnerPanel = styled.div`
+const InnerPanel = styled(motion.div)`
   height: 80%;
   margin: 2rem 3rem 0 3rem;
   display: flex;
@@ -42,7 +43,7 @@ const InnerPanel = styled.div`
   flex-direction: row;
 `;
 
-const ControlPanel = styled.div`
+const ControlPanel = styled(motion.div)`
   margin: 0 3rem 1rem 3rem;
   height: 20%;
   display: flex;
@@ -69,7 +70,7 @@ const Panel = () => {
     dispatch({
       type: "MOUNT_AC",
       ac: audioContext,
-      buffers: channelBuffers
+      buffers: channelBuffers,
     });
   }
 
@@ -85,7 +86,7 @@ const Panel = () => {
     });
   };
 
-  console.log(state);
+  //console.log(state);
   return (
     <Wrapper>
       {!state.isSetup ? (
@@ -101,23 +102,27 @@ const Panel = () => {
             <Channel index={2} />
             <Channel index={3} />
           </InnerPanel>
-          {!state.isPlaying ? (
-            <ControlPanel>
+          <ControlPanel
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2, duration: 1 }}
+          >
+            {!state.isPlaying ? (
               <i
                 className="material-icons md-light md-48"
-                onClick={() => play()}>
+                onClick={() => play()}
+              >
                 play_circle_filled
               </i>
-            </ControlPanel>
-          ) : (
-            <ControlPanel>
+            ) : (
               <i
                 className="material-icons md-light md-48"
-                onClick={() => stop()}>
+                onClick={() => stop()}
+              >
                 pause_circle_filled
               </i>
-            </ControlPanel>
-          )}
+            )}
+          </ControlPanel>
         </>
       )}
     </Wrapper>

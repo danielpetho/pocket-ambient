@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 import MySlider from "./Slider";
-import { MyAudioContext } from "../contexts/MyAudioContext"
+import { MyAudioContext } from "../contexts/MyAudioContext";
+import { motion } from "framer-motion";
 
-const Wrapper = styled.div`
+const Wrapper = styled(motion.div)`
   height: 100%;
   margin: 1rem 0.5rem 1rem 0.5rem;
 `;
@@ -42,23 +43,45 @@ const ChannelName = styled.p`
 const Channel = (props) => {
   const [state, dispatch] = useContext(MyAudioContext);
 
+  const delay = props.index / 2;
+
   let channelState = state.channels[props.index];
-  const chooseVariation = (id) =>{
+  const chooseVariation = (id) => {
     dispatch({
       type: "SET_VAR",
       channelIdx: props.index,
-      varIdx: id
-    })
-  }
-  
+      varIdx: id,
+    });
+  };
+
   return (
-    <Wrapper>
+    <Wrapper
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1, delay: delay}}
+    >
       <ChannelName>{channelState.channelName}</ChannelName>
-      {channelState.activeVar === 0 ? <Button active/> : <Button onClick={() => chooseVariation(0)}/>}
-      {channelState.activeVar === 1 ? <Button active/> : <Button onClick={() => chooseVariation(1)}/>}
-      {channelState.activeVar === 2 ? <Button active/> : <Button onClick={() => chooseVariation(2)}/>}
-      {channelState.activeVar === 3 ? <Button active/> : <Button onClick={() => chooseVariation(3)}/>}
-      <MySlider index={props.index}/>
+      {channelState.activeVar === 0 ? (
+        <Button active />
+      ) : (
+        <Button onClick={() => chooseVariation(0)} />
+      )}
+      {channelState.activeVar === 1 ? (
+        <Button active />
+      ) : (
+        <Button onClick={() => chooseVariation(1)} />
+      )}
+      {channelState.activeVar === 2 ? (
+        <Button active />
+      ) : (
+        <Button onClick={() => chooseVariation(2)} />
+      )}
+      {channelState.activeVar === 3 ? (
+        <Button active />
+      ) : (
+        <Button onClick={() => chooseVariation(3)} />
+      )}
+      <MySlider index={props.index} />
     </Wrapper>
   );
 };
