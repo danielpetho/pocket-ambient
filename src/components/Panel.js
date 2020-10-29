@@ -86,7 +86,7 @@ const Panel = () => {
     });
   };
 
-  //console.log(state);
+  console.log(state);
   return (
     <Wrapper>
       {!state.isSetup ? (

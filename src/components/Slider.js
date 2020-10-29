@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
-import Slider, { Range } from 'rc-slider';
+import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { MyAudioContext } from "../contexts/MyAudioContext"
 
@@ -15,7 +15,7 @@ const SliderWrapper = styled.div`
 `;
 
 const MySlider = (props) => {
-  const [ state, dispatch ] = useContext(MyAudioContext);
+  const [ , dispatch ] = useContext(MyAudioContext);
   const { index } = props;
 
   const onSliderChange = value => {

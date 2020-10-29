@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { projectStorage } from "../firebase/config";
 import { SAMPLE_LIBRARY } from "../assets/samples";
 
@@ -16,11 +16,28 @@ const useStorage = () => {
   useEffect(() => {
     const storageRef = projectStorage.ref();
 
-    const lib = [];
+    const lib = {reverbBuffer: "", sampleLibrary: []};
+    const sampleLib = [];
+
+    storageRef.child("samples/reverb_impulse.wav").getDownloadURL().then((url) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.responseType = "arraybuffer";
+      xhr.open("GET", url);
+      xhr.send();
+
+      xhr.onload = async () => {
+        let buffer = await decodeAudio(xhr.response);
+        lib.reverbBuffer = buffer;
+      }
+    }).catch((err) => {
+      console.error(err.err)
+    });
+
 
     //collect the decoded samples into an array
     SAMPLE_LIBRARY.forEach((ch, i) => {
-      const channel = {variations: [], channelName: ch.channelName};
+      const channel = {variations: [], channelName: ch.channelName, globalRules: ch.globalRules};
       ch.variations.forEach(variation => {
         
         const vari = {variation: variation.variation, rules: {}, samples: [], name: variation.name};
@@ -46,9 +63,10 @@ const useStorage = () => {
                   vari.samples = sampleArray;
                   channel.variations.push(vari);
                   if (channel.variations.length === 4) {
-                    lib.push(channel); 
+                    sampleLib.push(channel); 
 
-                    if (lib.length === 4) {
+                    if (sampleLib.length === 4) {
+                      lib.sampleLibrary = sampleLib;
                       setSampleLibrary(lib);
                     }
                   }

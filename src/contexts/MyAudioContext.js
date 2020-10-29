@@ -21,6 +21,15 @@ const fade = (state, channel, variation, nextVariation) => {
   
 }
 
+const modulateLpf = (lpf) => {
+
+}
+
+const modulateGain = (variant) => {
+  
+}
+
+
 
 const initialState = {
   audioContext: "",

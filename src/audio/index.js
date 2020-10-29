@@ -1,10 +1,10 @@
 const OCTAVE = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
 
-const getSample = (noteAndOctave) => {
+const getSample = (nodes, noteAndOctave) => {
     let [, requestedNote, requestedOctave] = /^(\w[b#]?)(\d)$/.exec(noteAndOctave);
     requestedOctave = parseInt(requestedOctave, 10);
     requestedNote = flatToSharp(requestedNote);
-    let sample = getNearestSample(sampleBank, requestedNote, requestedOctave);
+    let sample = getNearestSample(nodes, requestedNote, requestedOctave);
     let distance = getNoteDistance(requestedNote, requestedOctave, sample.note, sample.octave);
 }
 
@@ -30,9 +30,9 @@ const getNoteDistance = (note1, octave1, note2, octave2) => {
 /**
  * You have to pass the variation nodes as nodes
  */
-const getNearestSample = (samples, note, octave) => {
-    let sampleBank = samples.map((sample) => {
-        let s = sample.sampleName.slice(0, sample.sampleName.length - 4);
+const getNearestSample = (nodes, note, octave) => {
+    let sampleBank = nodes.map((node) => {
+        let s = node.sampleName.slice(0, node.sampleName.length - 4);
         return {note: s.slice(0), octave: s.slice(1) }
     })
 
@@ -43,10 +43,4 @@ const getNearestSample = (samples, note, octave) => {
     })
 
     return sortedBank[0];
-}
-
-
-
-export const playSample = (note) => {
-
 }
