@@ -5,34 +5,38 @@ export const MyAudioContext = createContext();
 const fade = (state, channel, variation, nextVariation) => {
   const step = 0.01;
   let fOut = setInterval(() => {
-    const gain = channel.variation[variation].variationGain.gain.value
-    channel.variation[variation].variationGain.gain.setValueAtTime((gain - step), state.audioContext.currentTime);
+    const gain = channel.variation[variation].variationGain.gain.value;
+    channel.variation[variation].variationGain.gain.setValueAtTime(
+      gain - step,
+      state.audioContext.currentTime
+    );
     if (channel.variation[variation].variationGain.gain.value < 0.01) {
       clearInterval(fOut);
     }
   }, 30);
   let fIn = setInterval(() => {
-    const gain = channel.variation[nextVariation].variationGain.gain.value
-    channel.variation[nextVariation].variationGain.gain.setValueAtTime((gain + step), state.audioContext.currentTime);
+    const gain = channel.variation[nextVariation].variationGain.gain.value;
+    channel.variation[nextVariation].variationGain.gain.setValueAtTime(
+      gain + step,
+      state.audioContext.currentTime
+    );
     if (channel.variation[nextVariation].variationGain.gain.value > 0.99) {
       clearInterval(fIn);
     }
   }, 30);
-  
-}
+};
 
-const modulateLpf = (lpf) => {
+const modulateLpf = (lpf, freq, rate, offset) => {
+  let alpha = offset;
+  let sinMod = setInterval(() => {
+    lpf.frequency.value = freq + Math.sin(alpha) * 4900;
+    alpha += rate;
+  }, 100);
+};
 
-}
+const modulateGain = (variant) => {};
 
-const modulateGain = (variant) => {
-  
-}
-
-const modulatePitch = (variant) => {
-  
-}
-
+const modulatePitch = (variant) => {};
 
 const initialState = {
   audioContext: "",
@@ -52,8 +56,15 @@ const reducer = (state, action) => {
         isSetup: true,
       };
     case "PLAY":
-      state.channels.forEach((channel) => {
-        channel.channelGain.gain.setValueAtTime(channel.volume / 100, state.audioContext.currentTime);
+      state.channels.forEach((channel, index) => {
+        channel.channelGain.gain.setValueAtTime(
+          channel.volume / 100,
+          state.audioContext.currentTime
+        );
+        if (channel.globalRules.modulateLpf) {
+          let freq = channel.lpf.frequency.value;
+          modulateLpf(channel.lpf, freq, 0.006, -index);
+        }
       });
       return {
         ...state,
@@ -62,14 +73,23 @@ const reducer = (state, action) => {
       };
     case "STOP":
       state.channels.forEach((channel) => {
-        channel.channelGain.gain.setValueAtTime(0, state.audioContext.currentTime);
+        channel.channelGain.gain.setValueAtTime(
+          0,
+          state.audioContext.currentTime
+        );
       });
       return {
         ...state,
         isPlaying: false,
       };
     case "SET_VOLUME":
-      state.channels[action.idx].channelGain.gain.setValueAtTime(action.payload / 100, state.audioContext.currentTime);
+      if (state.isPlaying) {
+        state.channels[action.idx].channelGain.gain.setValueAtTime(
+          action.payload / 100,
+          state.audioContext.currentTime
+        );
+      }
+
       return {
         ...state,
         channels: state.channels.map((channel, i) =>
@@ -81,7 +101,7 @@ const reducer = (state, action) => {
       fade(state, state.channels[action.channelIdx], activeVar, action.varIdx);
       return {
         ...state,
-        channels: state.channels.map((channel, i) => 
+        channels: state.channels.map((channel, i) =>
           i === action.channelIdx
             ? { ...channel, activeVar: action.varIdx }
             : channel

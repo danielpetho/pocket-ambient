@@ -43,14 +43,14 @@ const setupChannel = (channel) => {
 
         gainNode.gain.setValueAtTime(1, ac.currentTime);
         gainNode.connect(varChannelMerger);
-        //sourceNode.loop = true;
+        sourceNode.loop = true;
 
         node = { sourceNode, gainNode, sampleName };
         node.sourceNode.start(0);
       } else {
         // if a variant has only one sample, then the variant gain is enough to handle the on/off state.
         sourceNode.connect(varChannelMerger);
-        //sourceNode.loop = true;
+        sourceNode.loop = true;
         node = { sourceNode, sampleName };
         node.sourceNode.start(0);
       }
@@ -146,6 +146,7 @@ const useSetupAudio = () => {
         if (channel.globalRules.modulateLpf) {
           lowpassFilterNode = ac.createBiquadFilter();
           lowpassFilterNode.type = "lowpass";
+          lowpassFilterNode.frequency.value = 5000;
           // connect all of the channel gain-s to an pf node
           channelGain.connect(lowpassFilterNode);
           lowpassFilterNode.connect(ac.destination);
@@ -162,7 +163,8 @@ const useSetupAudio = () => {
           activeVar: activeVar,
           volume: 75,
           channelGain: channelGain,
-          lpf: lowpassFilterNode
+          lpf: lowpassFilterNode,
+          globalRules: channel.globalRules
         });
       });
 

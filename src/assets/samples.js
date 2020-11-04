@@ -2,7 +2,7 @@ const SAMPLE_LIBRARY = [
   {
     globalRules: {
       multiSample: false,
-      modulateLpf: true,
+      modulateLpf: false,
       reverb: false
     },
     variations: [
@@ -105,7 +105,7 @@ const SAMPLE_LIBRARY = [
   {
     globalRules: {
       multiSample: true,
-      modulateLpf: true,
+      modulateLpf: false,
       reverb: false,
     },
     variations: [
