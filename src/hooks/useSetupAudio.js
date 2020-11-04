@@ -33,24 +33,24 @@ const setupChannel = (channel) => {
       );
       let sourceNode = ac.createBufferSource();
       sourceNode.buffer = sample.buffer;
-
+      
       let node = {};
       // if a channel is mutlisampled, meaning a variant has multiple sources, then create a gain node for all of them
       // this becomes handy when their respective gains are modulated, resulting in a simulation of randomized velocity
-      if (channel.globalRules.multSample) {
+      if (channel.globalRules.multiSample) {
         let gainNode = ac.createGain();
         sourceNode.connect(gainNode);
 
         gainNode.gain.setValueAtTime(1, ac.currentTime);
         gainNode.connect(varChannelMerger);
-        sourceNode.loop = true;
+        //sourceNode.loop = true;
 
         node = { sourceNode, gainNode, sampleName };
         node.sourceNode.start(0);
       } else {
         // if a variant has only one sample, then the variant gain is enough to handle the on/off state.
         sourceNode.connect(varChannelMerger);
-        sourceNode.loop = true;
+        //sourceNode.loop = true;
         node = { sourceNode, sampleName };
         node.sourceNode.start(0);
       }

@@ -29,6 +29,9 @@ const modulateGain = (variant) => {
   
 }
 
+const modulatePitch = (variant) => {
+  
+}
 
 
 const initialState = {

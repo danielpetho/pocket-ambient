@@ -8,6 +8,8 @@ const getSample = (nodes, noteAndOctave) => {
     let distance = getNoteDistance(requestedNote, requestedOctave, sample.note, sample.octave);
 }
 
+
+
 const flatToSharp = (note) => {
     switch (note) {
       case 'bb': return 'a#';
