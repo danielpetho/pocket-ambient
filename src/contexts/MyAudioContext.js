@@ -34,6 +34,13 @@ const modulateLpf = (lpf, freq, rate, offset) => {
   }, 100);
 };
 
+const playSamples = (variation, ac) => {
+  variation.nodes.forEach((node, index) => {
+    node.sourceNode.loop = true;
+    node.sourceNode.start(ac.currentTime + index * 10);
+  });
+} 
+
 const modulateGain = (variant) => {};
 
 const modulatePitch = (variant) => {};
@@ -57,6 +64,7 @@ const reducer = (state, action) => {
       };
     case "PLAY":
       state.channels.forEach((channel, index) => {
+
         channel.channelGain.gain.setValueAtTime(
           channel.volume / 100,
           state.audioContext.currentTime
@@ -64,6 +72,11 @@ const reducer = (state, action) => {
         if (channel.globalRules.modulateLpf) {
           let freq = channel.lpf.frequency.value;
           modulateLpf(channel.lpf, freq, 0.006, -index);
+        }
+        if (channel.globalRules.multiSample && !state.playedOnce) {
+          channel.variation.forEach((v) => {
+            playSamples(v, state.audioContext);
+          })
         }
       });
       return {

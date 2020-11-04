@@ -16,4 +16,5 @@ firebase.initializeApp(firebaseConfig);
 
 const projectStorage = firebase.storage();
 
+
 export { projectStorage };

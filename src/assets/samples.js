@@ -32,7 +32,7 @@ const SAMPLE_LIBRARY = [
         name: "rain",
       },
     ],
-    channelName: "BACKGROUND",
+    channelName: "AMBIENCE",
   },
   {
     globalRules: {

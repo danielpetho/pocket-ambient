@@ -58,10 +58,11 @@ const ControlPanel = styled(motion.div)`
 
 const Panel = () => {
   const [state, dispatch] = useContext(MyAudioContext);
-  const { channelBuffers, audioContext } = useSetupAudio();
+  const { channelBuffers, audioContext, fbErrProp } = useSetupAudio();
 
   // mount web auido api
   if (
+    !fbErrProp &&
     !state.isSetup &&
     channelBuffers &&
     channelBuffers.length === 4 &&
@@ -87,46 +88,58 @@ const Panel = () => {
   };
 
   console.log(state);
-  return (
-    <Wrapper>
-      {!state.isSetup ? (
+
+  if (!fbErrProp) {
+    return (
+      <Wrapper>
+        {!state.isSetup ? (
+          <LoadWrapper>
+            <WaveSpinner size={30} color={"#fff"}></WaveSpinner>
+            <p>Downloading samples...</p>
+          </LoadWrapper>
+        ) : (
+          <>
+            <InnerPanel>
+              <Channel index={0} />
+              <Channel index={1} />
+              <Channel index={2} />
+              <Channel index={3} />
+            </InnerPanel>
+            <ControlPanel
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2, duration: 1 }}
+            >
+              {!state.isPlaying ? (
+                <i
+                  className="material-icons md-light md-48"
+                  onClick={() => play()}
+                >
+                  play_circle_filled
+                </i>
+              ) : (
+                <i
+                  className="material-icons md-light md-48"
+                  onClick={() => stop()}
+                >
+                  pause_circle_filled
+                </i>
+              )}
+            </ControlPanel>
+          </>
+        )}
+      </Wrapper>
+    );
+  } else {
+    return (
+      <Wrapper>
         <LoadWrapper>
-          <WaveSpinner size={30} color={"#fff"}></WaveSpinner>
-          <p>Downloading samples...</p>
+          <h4>Look's like the site reached it's data plan limit. 
+            Check back tomorrow, or consider to support me on Patreon to keep up with the server costs</h4>
         </LoadWrapper>
-      ) : (
-        <>
-          <InnerPanel>
-            <Channel index={0} />
-            <Channel index={1} />
-            <Channel index={2} />
-            <Channel index={3} />
-          </InnerPanel>
-          <ControlPanel
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2, duration: 1 }}
-          >
-            {!state.isPlaying ? (
-              <i
-                className="material-icons md-light md-48"
-                onClick={() => play()}
-              >
-                play_circle_filled
-              </i>
-            ) : (
-              <i
-                className="material-icons md-light md-48"
-                onClick={() => stop()}
-              >
-                pause_circle_filled
-              </i>
-            )}
-          </ControlPanel>
-        </>
-      )}
-    </Wrapper>
-  );
+      </Wrapper>
+    )
+  }
 };
 
 export default Panel;

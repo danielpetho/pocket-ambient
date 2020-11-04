@@ -9,7 +9,7 @@ const Wrapper = styled(motion.div)`
   margin: 1rem 0.5rem 1rem 0.5rem;
 `;
 
-const Button = styled.div`
+const Button = styled(motion.div)`
   width: 2.5rem;
   height: 2.5rem;
   background-color: #626262;
@@ -18,6 +18,7 @@ const Button = styled.div`
 
   &:hover {
     background-color: #828282;
+    box-shadow: 0px 0px 8px 0px rgb(255, 255, 255);
   }
 
   ${({ active }) =>
@@ -27,6 +28,7 @@ const Button = styled.div`
 
       &:hover {
         background-color: #9611ff;
+        box-shadow: none;
       }
     `}
 `;
@@ -60,7 +62,7 @@ const Channel = (props) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 1, delay: delay}}
     >
-      <ChannelName>{channelState.channelName}</ChannelName>
+      <ChannelName>{channelState.chName}</ChannelName>
       {channelState.activeVar === 0 ? (
         <Button active />
       ) : (

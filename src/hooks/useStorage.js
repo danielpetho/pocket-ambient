@@ -12,19 +12,22 @@ const decodeAudio = async (arrayBuffer) => {
 
 const useStorage = () => {
   const [sampleLibrary, setSampleLibrary] = useState(null);
+  const [fbErr, setFbErr] = useState(null);
 
   useEffect(() => {
     const storageRef = projectStorage.ref();
+    
 
     const lib = {reverbBuffer: "", sampleLibrary: []};
     const sampleLib = [];
 
     storageRef.child("samples/reverb_impulse.wav").getDownloadURL().then((url) => {
       const xhr = new XMLHttpRequest();
-
+      
       xhr.responseType = "arraybuffer";
       xhr.open("GET", url);
       xhr.send();
+     
 
       xhr.onload = async () => {
         let buffer = await decodeAudio(xhr.response);
@@ -32,6 +35,7 @@ const useStorage = () => {
       }
     }).catch((err) => {
       console.error(err.err)
+      setFbErr(true)
     });
 
 
@@ -68,18 +72,20 @@ const useStorage = () => {
                     if (sampleLib.length === 4) {
                       lib.sampleLibrary = sampleLib;
                       setSampleLibrary(lib);
+                      setFbErr(false);
                     }
                   }
                 }
               };
             }).catch((err) => {
               console.error(err.err)
+              setFbErr(true)
             });
         })
       })
     });
   }, []);
-  return { sampleLibrary };
+  return { sampleLibrary, fbErr };
 };
 
 export default useStorage;
