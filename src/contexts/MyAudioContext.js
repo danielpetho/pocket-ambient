@@ -53,7 +53,7 @@ const playSamples = (rules, variation, ac) => {
         console.log(node.sampleName, nearestSample);
         if (node.sampleName === nearestSample) {
           sourceNode.buffer = node.sampleBuffer;
-          sourceNode.playedbackRate.value = playbackRate;
+          sourceNode.playbackRate.value = playbackRate;
           //sourceNode.buffer = node.sampleBuffer;
           sourceNode.connect(node.gainNode);
           sourceNode.start(ac.currentTime + Math.random((i * 10)));
