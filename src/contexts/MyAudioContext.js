@@ -1,5 +1,5 @@
 import React, { createContext, useReducer } from "react";
-import { getDistanceAndNearestNote } from '../audio/index';
+import { getDistanceAndNearestNote } from "../audio/index";
 
 export const MyAudioContext = createContext();
 
@@ -13,6 +13,10 @@ const fade = (state, channel, variation, nextVariation) => {
     );
     if (channel.variation[variation].variationGain.gain.value < 0.01) {
       clearInterval(fOut);
+
+      if (channel.globalRules.multiSample) {
+        channel.intervalIds.forEach(id => clearInterval(id));
+      }
     }
   }, 30);
   let fIn = setInterval(() => {
@@ -36,35 +40,38 @@ const modulateLpf = (lpf, freq, rate, offset) => {
 };
 
 const playSamples = (rules, variation, ac) => {
+  const iIds = [];
   for (let i = 0; i < 7; i++) {
-    setInterval(() => {
+    const iId = setInterval(() => {
       let sourceNode = ac.createBufferSource();
 
       // pick a random note and octave from the samples.
-      const note = rules.notes[Math.floor(Math.random() * rules.notes.length)]
-      const octave = rules.octaves[Math.floor(Math.random() * rules.octaves.length)]
+      const note = rules.notes[Math.floor(Math.random() * rules.notes.length)];
+      const octave =
+        rules.octaves[Math.floor(Math.random() * rules.octaves.length)];
       const noteAndOctave = note + octave;
       // get the distance of the requested note and their nearest note, and get the nearest note
-      const [distance, nearestNote] = getDistanceAndNearestNote(variation.nodes, noteAndOctave)
+      const [distance, nearestNote] = getDistanceAndNearestNote(
+        variation.nodes,
+        noteAndOctave
+      );
       let playbackRate = Math.pow(2, distance / 12);
-      const nearestSample = nearestNote.note + nearestNote.octave
+      const nearestSample = nearestNote.note + nearestNote.octave;
       // get the nearest note's node - later to connect the source to their respective gain node
       variation.nodes.forEach((node) => {
-        console.log(node.sampleName, nearestSample);
         if (node.sampleName === nearestSample) {
           sourceNode.buffer = node.sampleBuffer;
           sourceNode.playbackRate.value = playbackRate;
           //sourceNode.buffer = node.sampleBuffer;
           sourceNode.connect(node.gainNode);
-          sourceNode.start(ac.currentTime + Math.random((i * 10)));
-        }; 
+          sourceNode.start(ac.currentTime + Math.random(i * 10));
+        }
       });
-
-     
-     
-    }, (i + 2)* 1000);
+    }, (i + 2) * 1000);
+    iIds.push(iId);
   }
 
+  return iIds;
 };
 
 const modulateGain = (variant) => {};
@@ -97,7 +104,11 @@ const reducer = (state, action) => {
           modulateLpf(channel.lpf, freq, 0.006, -index);
         }
         if (channel.globalRules.multiSample && !state.playedOnce) {
-            playSamples(channel.variation[channel.activeVar].rules, channel.variation[channel.activeVar], state.audioContext);
+          channel.intervalIds = playSamples(
+            channel.variation[channel.activeVar].rules,
+            channel.variation[channel.activeVar],
+            state.audioContext
+          );
         }
       });
       return {
@@ -131,13 +142,16 @@ const reducer = (state, action) => {
         ),
       };
     case "SET_VAR":
-
       const channel = state.channels[action.channelIdx];
       const activeVar = channel.activeVar;
 
       fade(state, channel, activeVar, action.varIdx);
       if (channel.globalRules.multiSample) {
-        playSamples(channel.variation[activeVar].rules, channel.variation[activeVar], state.audioContext);
+        channel.intervalIds = playSamples(
+          channel.variation[activeVar].rules,
+          channel.variation[activeVar],
+          state.audioContext
+        );
       }
       return {
         ...state,

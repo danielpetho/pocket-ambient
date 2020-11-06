@@ -13,6 +13,11 @@ const Button = styled(motion.div)`
   width: 2.5rem;
   height: 2.5rem;
   background-color: #626262;
+  font-size: 0.5rem;
+  padding: 5px;
+  color: #fefefe;
+  justify-content: center;
+  align-items: center;
   margin-top: 1rem;
   cursor: pointer;
 
@@ -64,24 +69,24 @@ const Channel = (props) => {
     >
       <ChannelName>{channelState.chName}</ChannelName>
       {channelState.activeVar === 0 ? (
-        <Button active />
+        <Button active>{channelState.variation[0].name}</Button>
       ) : (
-        <Button onClick={() => chooseVariation(0)} />
+        <Button onClick={() => chooseVariation(0)}>{channelState.variation[0].name}</Button>
       )}
       {channelState.activeVar === 1 ? (
-        <Button active />
+        <Button active >{channelState.variation[1].name}</Button>
       ) : (
-        <Button onClick={() => chooseVariation(1)} />
+        <Button onClick={() => chooseVariation(1)}>{channelState.variation[1].name}</Button>
       )}
       {channelState.activeVar === 2 ? (
-        <Button active />
+        <Button active >{channelState.variation[2].name}</Button>
       ) : (
-        <Button onClick={() => chooseVariation(2)} />
+        <Button onClick={() => chooseVariation(2)} >{channelState.variation[2].name}</Button>
       )}
       {channelState.activeVar === 3 ? (
-        <Button active />
+        <Button active >{channelState.variation[3].name}</Button>
       ) : (
-        <Button onClick={() => chooseVariation(3)} />
+        <Button onClick={() => chooseVariation(3)} >{channelState.variation[3].name}</Button>
       )}
       <MySlider index={props.index} />
     </Wrapper>

@@ -15,7 +15,8 @@ const setupChannel = (channel) => {
       merger: {},
       variationGain: {},
       name: vari.name,
-      rules: vari.rules
+      rules: vari.rules,
+      intervalIds: []
     };
     const varChannelMerger = ac.createChannelMerger();
     const varGainNode = ac.createGain();

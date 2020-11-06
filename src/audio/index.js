@@ -36,15 +36,10 @@ const getNoteDistance = (note1, octave1, note2, octave2) => {
  * You have to pass the variation nodes as nodes
  */
 const getNearestNote = (nodes, note, octave) => {
-    console.log("nodes");
-    console.log(nodes);
     let sampleBank = nodes.map((node) => {
         let s = node.sampleName;
         return {note: s[0], octave: s[1] }
     })
-
-    console.log("sampleBank");
-    console.log(sampleBank);
 
     let sortedBank = sampleBank.slice().sort((sampleA, sampleB) => {
         let distToA = Math.abs(getNoteDistance(note, octave, sampleA.note, sampleB.octave));
