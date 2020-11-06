@@ -15,6 +15,7 @@ const setupChannel = (channel) => {
       merger: {},
       variationGain: {},
       name: vari.name,
+      rules: vari.rules
     };
     const varChannelMerger = ac.createChannelMerger();
     const varGainNode = ac.createGain();
@@ -30,28 +31,28 @@ const setupChannel = (channel) => {
         0,
         sample.sampleName.length - 4
       );
-      let sourceNode = ac.createBufferSource();
-      sourceNode.buffer = sample.buffer;
+     
 
       let node = {};
       // if a channel is mutlisampled, meaning a variant has multiple sources, then create a gain node for all of them
       // this becomes handy when their respective gains are modulated, resulting in a simulation of randomized velocity
       if (channel.globalRules.multiSample) {
         let gainNode = ac.createGain();
-        sourceNode.connect(gainNode);
+
 
         gainNode.gain.setValueAtTime(1, ac.currentTime);
         gainNode.connect(varChannelMerger);
-        sourceNode.loop = false;
+        let sampleBuffer = sample.buffer
+        node = {sampleBuffer, gainNode, sampleName };
 
-        node = { sourceNode, gainNode, sampleName };
-        //node.sourceNode.start(0);
       } else {
+        let sourceNode = ac.createBufferSource();
+        sourceNode.buffer = sample.buffer;
         // if a variant has only one sample, then the variant gain is enough to handle the on/off state.
         sourceNode.connect(varChannelMerger);
-        sourceNode.loop = false;
+        sourceNode.loop = true;
         node = { sourceNode, sampleName };
-        //node.sourceNode.start(0);
+        node.sourceNode.start(0);
       }
 
       sourceNodes.push(node);
@@ -148,7 +149,7 @@ const useSetupAudio = () => {
             lowpassFilterNode = ac.createBiquadFilter();
             lowpassFilterNode.type = "lowpass";
             lowpassFilterNode.frequency.value = 5000;
-            // connect all of the channel gain-s to an pf node
+            // connect the channel gain-s to an lpf node
             channelGain.connect(lowpassFilterNode);
             lowpassFilterNode.connect(ac.destination);
           } else {

@@ -1,4 +1,5 @@
 import React, { createContext, useReducer } from "react";
+import { getDistanceAndNearestNote } from '../audio/index';
 
 export const MyAudioContext = createContext();
 
@@ -34,16 +35,39 @@ const modulateLpf = (lpf, freq, rate, offset) => {
   }, 100);
 };
 
-const playSamples = (variation, ac) => {
-  variation.nodes.forEach((node, index) => {
-    node.sourceNode.loop = true;
-    node.sourceNode.start(ac.currentTime + index * 10);
-  });
-} 
+const playSamples = (rules, variation, ac) => {
+  for (let i = 0; i < 7; i++) {
+    setInterval(() => {
+      let sourceNode = ac.createBufferSource();
+
+      // pick a random note and octave from the samples.
+      const note = rules.notes[Math.floor(Math.random() * rules.notes.length)]
+      const octave = rules.octaves[Math.floor(Math.random() * rules.octaves.length)]
+      const noteAndOctave = note + octave;
+      // get the distance of the requested note and their nearest note, and get the nearest note
+      const [distance, nearestNote] = getDistanceAndNearestNote(variation.nodes, noteAndOctave)
+      let playbackRate = Math.pow(2, distance / 12);
+      const nearestSample = nearestNote.note + nearestNote.octave
+      // get the nearest note's node - later to connect the source to their respective gain node
+      variation.nodes.forEach((node) => {
+        console.log(node.sampleName, nearestSample);
+        if (node.sampleName === nearestSample) {
+          sourceNode.buffer = node.sampleBuffer;
+          sourceNode.playedbackRate.value = playbackRate;
+          //sourceNode.buffer = node.sampleBuffer;
+          sourceNode.connect(node.gainNode);
+          sourceNode.start(ac.currentTime + Math.random((i * 10)));
+        }; 
+      });
+
+     
+     
+    }, (i + 2)* 1000);
+  }
+
+};
 
 const modulateGain = (variant) => {};
-
-const modulatePitch = (variant) => {};
 
 const initialState = {
   audioContext: "",
@@ -64,7 +88,6 @@ const reducer = (state, action) => {
       };
     case "PLAY":
       state.channels.forEach((channel, index) => {
-
         channel.channelGain.gain.setValueAtTime(
           channel.volume / 100,
           state.audioContext.currentTime
@@ -74,9 +97,7 @@ const reducer = (state, action) => {
           modulateLpf(channel.lpf, freq, 0.006, -index);
         }
         if (channel.globalRules.multiSample && !state.playedOnce) {
-          channel.variation.forEach((v) => {
-            playSamples(v, state.audioContext);
-          })
+            playSamples(channel.variation[channel.activeVar].rules, channel.variation[channel.activeVar], state.audioContext);
         }
       });
       return {
@@ -110,8 +131,14 @@ const reducer = (state, action) => {
         ),
       };
     case "SET_VAR":
-      const activeVar = state.channels[action.channelIdx].activeVar;
-      fade(state, state.channels[action.channelIdx], activeVar, action.varIdx);
+
+      const channel = state.channels[action.channelIdx];
+      const activeVar = channel.activeVar;
+
+      fade(state, channel, activeVar, action.varIdx);
+      if (channel.globalRules.multiSample) {
+        playSamples(channel.variation[activeVar].rules, channel.variation[activeVar], state.audioContext);
+      }
       return {
         ...state,
         channels: state.channels.map((channel, i) =>

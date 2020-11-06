@@ -44,7 +44,7 @@ const useStorage = () => {
       const channel = {variations: [], channelName: ch.channelName, globalRules: ch.globalRules};
       ch.variations.forEach(variation => {
         
-        const vari = {variation: variation.variation, rules: {}, samples: [], name: variation.name};
+        const vari = {variation: variation.variation, rules: variation.rules, samples: [], name: variation.name};
         const sampleArray = [];
 
         variation.samples.forEach(sample => {
