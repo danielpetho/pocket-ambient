@@ -3,32 +3,36 @@ import { getDistanceAndNearestNote } from "../audio/index";
 
 export const MyAudioContext = createContext();
 
-const fade = (state, channel, variation, nextVariation) => {
+const fade = (state, channel, currentVariation, nextVariation) => {
   const step = 0.01;
   let fOut = setInterval(() => {
-    const gain = channel.variation[variation].variationGain.gain.value;
-    channel.variation[variation].variationGain.gain.setValueAtTime(
+    const gain = channel.variation[currentVariation].variationGain.gain.value;
+    channel.variation[currentVariation].variationGain.gain.setValueAtTime(
       gain - step,
       state.audioContext.currentTime
     );
-    if (channel.variation[variation].variationGain.gain.value < 0.01) {
-      clearInterval(fOut);
 
+    //console.log(channel.variation[currentVariation].name + " : " + gain)
+    if (channel.variation[currentVariation].variationGain.gain.value < 0.01) {
       if (channel.globalRules.multiSample) {
-        channel.intervalIds.forEach(id => clearInterval(id));
+        //channel.currentIntervalIds.forEach((id) => clearInterval(id));
+        //channel.currentIntervalIds = channel.nextIntervalIds;
       }
+
+      clearInterval(fOut);
     }
-  }, 30);
+  }, 50);
   let fIn = setInterval(() => {
     const gain = channel.variation[nextVariation].variationGain.gain.value;
     channel.variation[nextVariation].variationGain.gain.setValueAtTime(
       gain + step,
       state.audioContext.currentTime
     );
+    //console.log(channel.variation[nextVariation].name + " : " + gain)
     if (channel.variation[nextVariation].variationGain.gain.value > 0.99) {
       clearInterval(fIn);
     }
-  }, 30);
+  }, 50);
 };
 
 const modulateLpf = (lpf, freq, rate, offset) => {
@@ -41,10 +45,13 @@ const modulateLpf = (lpf, freq, rate, offset) => {
 
 const playSamples = (rules, variation, ac) => {
   const iIds = [];
+  const sourceNodes = [];
+  console.log("rules: + " + rules + "variation: " + variation);
+
   for (let i = 0; i < 7; i++) {
+    
     const iId = setInterval(() => {
       let sourceNode = ac.createBufferSource();
-
       // pick a random note and octave from the samples.
       const note = rules.notes[Math.floor(Math.random() * rules.notes.length)];
       const octave =
@@ -58,16 +65,20 @@ const playSamples = (rules, variation, ac) => {
       let playbackRate = Math.pow(2, distance / 12);
       const nearestSample = nearestNote.note + nearestNote.octave;
       // get the nearest note's node - later to connect the source to their respective gain node
-      variation.nodes.forEach((node) => {
+      variation.nodes.find((node) => {
         if (node.sampleName === nearestSample) {
+          
           sourceNode.buffer = node.sampleBuffer;
           sourceNode.playbackRate.value = playbackRate;
           //sourceNode.buffer = node.sampleBuffer;
           sourceNode.connect(node.gainNode);
-          sourceNode.start(ac.currentTime + Math.random(i * 10));
-        }
+          sourceNode.start(ac.currentTime + Math.random(i * 100));
+          //sourceNodes.push({instrument: variation.name, name: noteAndOctave, source: sourceNode });
+          return true;
+        } return false;
       });
-    }, (i + 2) * 1000);
+    }, (i + 10) * 1000);
+
     iIds.push(iId);
   }
 
@@ -104,11 +115,14 @@ const reducer = (state, action) => {
           modulateLpf(channel.lpf, freq, 0.006, -index);
         }
         if (channel.globalRules.multiSample && !state.playedOnce) {
-          channel.intervalIds = playSamples(
+          const [intervalIds, currentPlayedSamples] = playSamples(
             channel.variation[channel.activeVar].rules,
             channel.variation[channel.activeVar],
             state.audioContext
           );
+
+          channel.currentIntervalIds = intervalIds;
+          //channel.currentPlayedSamples = currentPlayedSamples;
         }
       });
       return {
@@ -147,11 +161,14 @@ const reducer = (state, action) => {
 
       fade(state, channel, activeVar, action.varIdx);
       if (channel.globalRules.multiSample) {
-        channel.intervalIds = playSamples(
-          channel.variation[activeVar].rules,
-          channel.variation[activeVar],
+        const [intervalIds, currentPlayedSamples] = playSamples(
+          channel.variation[action.varIdx].rules,
+          channel.variation[action.varIdx],
           state.audioContext
         );
+
+        channel.nextIntervalIds = intervalIds;
+        //channel.currentPlayedSamples = currentPlayedSamples;
       }
       return {
         ...state,

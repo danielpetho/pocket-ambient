@@ -35,7 +35,7 @@ const setupChannel = (channel) => {
      
 
       let node = {};
-      // if a channel is mutlisampled, meaning a variant has multiple sources, then create a gain node for all of them
+      // if a channel is multisample, aka a variant has multiple sources, then create a gain node for all of them
       // this becomes handy when their respective gains are modulated, resulting in a simulation of randomized velocity
       if (channel.globalRules.multiSample) {
         let gainNode = ac.createGain();
@@ -144,7 +144,7 @@ const useSetupAudio = () => {
             channelMerger.connect(channelGain);
           }
 
-          // create lowpass filter node for a channel, if it has defined in their rule
+          // create lowpass filter node for a channel, if it's defined in its rule
           let lowpassFilterNode = {};
           if (channel.globalRules.modulateLpf) {
             lowpassFilterNode = ac.createBiquadFilter();

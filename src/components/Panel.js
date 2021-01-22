@@ -134,8 +134,8 @@ const Panel = () => {
     return (
       <Wrapper>
         <LoadWrapper style={{margin: "1rem"}}>
-          <h4>Look's like the site reached it's data plan limit. 
-            Check back tomorrow, or consider to support me on Patreon to keep up with the server costs</h4>
+          <h4>Look's like the site reached its data plan limit :(.
+            Check back tomorrow!</h4>
         </LoadWrapper>
       </Wrapper>
     )
